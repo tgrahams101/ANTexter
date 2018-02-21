@@ -3,17 +3,16 @@
 *Plugin Name: AN Texter with Twillio
 *Description: Send custom messages to groups of users on Action Network
 **/
-    add_action('admin_menu', 'texter');
+    add_action("admin_menu", "texter");
 
     function texter()
     {
-        add_menu_page('AN Text Sender', 'AN Texter', 'manage_options', 'texter_settings_page', 'texter_form');
-    }
+        add_menu_page("AN Text Sender", "AN Texter", "manage_options", "texter_settings_page", "texter_form");
+    };
 
     function texter_form()
     {
         echo `
-        
         <style>
             button, #phone, label[for="phone"] {
                 float: left;
@@ -46,14 +45,14 @@
   
 
 <script>
-    let message = document.getElementById('message').value
-    let tag = document.getElementById('tags').value
-    let phone = document.getElementById('phone').value
-    let ANapiKey = `get_userdata( $an_key )`
-    let TWapiKey = `get_userdata( $twillio_key )`
+    let message = document.getElementById("message").value
+    let tag = document.getElementById("tags").value
+    let phone = document.getElementById("phone").value
+    let ANapiKey = <?php get_userdata( $an_key ); ?>
+    let TWapiKey = <?php get_userdata( $twillio_key ); ?>
     let count = 0
     let ANAdress = "https://actionnetwork.org/api/v2/"
-    let sendServer = 'https://'
+    let sendServer = "https://"
 
     //////////////////////////////////////////////////////////////////////////////////////////////
     const addOptions = (content) => {
@@ -85,7 +84,7 @@
             }
         }
     }
-        xhttp.open("GET", ANAdress + 'tags/', true)
+        xhttp.open("GET", ANAdress + "tags/", true)
         xhttp.setRequestHeader("OSDI-API-Token", ANapiKey)
         xhttp.send()
     }
@@ -93,12 +92,12 @@
     //////////////////////////////////////////////////////////////////////////////////////////////
 
     function tester() {
-    var xhttp = new XMLHttpRequest();
-    xhttp.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
-            document.getElementById("response").innerHTML = this.responseText
+        var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+                document.getElementById("response").innerHTML = this.responseText
+            }
         }
-    };
         xhttp.open("GET", sendServer, true)
         xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded")
         xhttp.send("message="+message+"&TWapiKey="+TWapiKey+"&testphone="+phone)
@@ -109,31 +108,14 @@
         var xhttp = new XMLHttpRequest()
         xhttp.onreadystatechange = function() {
             if (this.readyState == 4 && this.status == 200) {
-            document.getElementById("response").innerHTML = this.responseText;
+                document.getElementById("response").innerHTML = this.responseText;
             }
-        };
+        }
         xhttp.open("GET", sendServer, true)
         xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded")
         xhttp.send("message="+message+"&ANTag="+tag+"&ANapiKey="+ANapiKey+"&TWapiKey="+TWapiKey)
     }
+</script>`;
 
-    //////////////////////////////////////////////////////////////////////////////////////////////
-    const ajax = {
-    get(url, header, callback) {
-        callback = callback || function() {}
-
-        const xhr = new XMLHttpRequest()
-        xhr.onreadystatechange = function() {
-            if (xhr.readyState === 4 && callback) {
-                callback(xhr.response)
-            }
-        };
-        xhr.open('get', url, true)
-        xhttp.setRequestHeader(header)
-        xhr.send()
-    }
 };
-</script>`
-
-}
 ?>
