@@ -48,8 +48,10 @@
     let message = document.getElementById("message").value
     let tag = document.getElementById("tags").value
     let phone = document.getElementById("phone").value
-    let ANapiKey = <?php get_userdata( $an_key ); ?>
-    let TWapiKey = <?php get_userdata( $twillio_key ); ?>
+    // let ANapiKey = <?php get_userdata( $an_key ); ?>
+    // let TWapiKey = <?php get_userdata( $twillio_key ); ?>
+    let TWapiKey = <?php get_field( 'an_key', 5 ); ?>
+    let TWapiKey = <?php get_field( 'twillio_key', 5 ); ?>
     let count = 0
     let ANAdress = "https://actionnetwork.org/api/v2/"
     let sendServer = "https://"
