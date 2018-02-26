@@ -17,7 +17,7 @@
 
     function texter_form()
     {
-        echo include('ANTHtml.html');
+        echo include('ANTHtml.php');
     };
     
 ?>
