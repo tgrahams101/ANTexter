@@ -5,10 +5,10 @@ var count = 0;
 var total = 0;
 var ANAdress = "https://actionnetwork.org/api/v2/";
 var sendServer = "https://";
-//var ANapiKey = "095b4e51dccf9c92c464c0e564dd6f32";
+var ANapiKey = "095b4e51dccf9c92c464c0e564dd6f32";
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-// Get tag categories from Action Network
+// Get tag categories from Action Network and add to tag_id dropdown
 function fetchTags() {
     var xhttp = new XMLHttpRequest();
     xhttp.addEventListener("load", getHrefs);
@@ -19,25 +19,25 @@ function fetchTags() {
 
 function getHrefs() {            
     var resp = JSON.parse(this.responseText);
-    var tags = resp._links["osdi:tags"];
-
-    count = tags.length;
-    for (var x = 0; x < tags.length; x++) {
-        addToSelect(fetchName(tags[x].href));
+    var hrefs = resp._links["osdi:tags"];
+    count = hrefs.length;
+    
+    for (var x = 0; x < count; x++) {
+        fetchObject(hrefs[x].href);
     }
 }
     
-function fetchName (element) {
+function fetchObject (href) {
     var xhr = new XMLHttpRequest();
     xhr.addEventListener("load", getName);
-    xhr.open("GET", element, true);
+    xhr.open("GET", href, true);
     xhr.setRequestHeader("OSDI-API-Token", ANapiKey);
     xhr.send();
 }
 
 function getName() {
-    var respon = JSON.parse(this.responseText);
-    addToSelect(respon.name); 
+    var resp = JSON.parse(this.responseText);
+    addToSelect(resp.name); 
 }
 
 function addToSelect(content) {
