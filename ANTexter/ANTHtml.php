@@ -1,4 +1,6 @@
 <?php
+require_once(__DIR__ . '/../advanced-custom-fields/acf.php');
+
 echo '<style>
     button, #phone, label[for="phone"] {
         float: left;
@@ -9,6 +11,12 @@ echo '<style>
         margin-bottom: 20px;
     }
     </style>
+
+    <script>
+        var TWapiKey="' . get_field( 'twillio_key', 'user_'. get_current_user_id()).'";
+        var ANapiKey="' . get_field( 'an_key', 'user_'. get_current_user_id()). '";
+        console.log("' . get_field( 'twillio_key', 'user_'. get_current_user_id()) . '");
+    </script>
 
     <h2>AN Texter with Twillio</h2>
     <div class="bottom">
