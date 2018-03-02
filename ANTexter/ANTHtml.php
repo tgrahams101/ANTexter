@@ -28,7 +28,8 @@ echo '<style>
         console.log("' . get_field( 'twillio_key', 'user_'. get_current_user_id()) . '");
     </script>
 
-    <h2 onLoad="fetchTags()">AN Texter with Twillio</h2>
+
+    <h2>AN Texter with Twillio</h2>
     <div class="bottom">
         <label for="message">Message</label>
         <textarea id="message" name="message"></textarea>
@@ -129,4 +130,5 @@ function serverResponse() {
 
 	</script>
 	';
+    
 ?>
