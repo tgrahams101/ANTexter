@@ -35,9 +35,14 @@
         </style>
         <h2>AN Texter with Twillio</h2>
         <div>
-            <label for="ID Tags">Action Network group</label>
-            <select class="js-example-basic-single bottom" name="tags" id="tags"></select>
+            <label for="ID Tags">Action Network Tag</label>
+            <select class="js-example-basic-single bottom" name="tags" id="tags" onchange="getTaggingsCount(this)">
+                <option disabled selected>Select a Tag</option>
+            </select>
 		</div>
+		<div>
+		    <span id="recipientTotal"></span>
+        </div>
         <div class="bottom">
             <label for="message">Message</label>
             <textarea id="message" name="message" rows="4" cols="50"></textarea>
@@ -56,19 +61,14 @@
                 fetchTags();
             };
 
-            var TWapiKey="' . get_field( 'twillio_key', 'user_'. get_current_user_id()).'";
-            var ANapiKey="' . get_field( 'an_key', 'user_'. get_current_user_id()). '";
-            console.log("' . get_field( 'twillio_key', 'user_'. get_current_user_id()) . '");
-            $(".js-example-basic-single").select2();
-
-            var message = document.getElementById("message").value;
-            var tag = document.getElementById("tags").value;
-            var phone = document.getElementById("phone").value;
-            var count = 0;
-            var total = 0;
-            var ANAdress = "https://actionnetwork.org/api/v2/";
-            var sendServer = "https://";
-
+	var message = document.getElementById("message").value;
+var tag = document.getElementById("tags").value;
+var phone = document.getElementById("phone").value;
+var count = 0;
+var total = 0;
+var ANAdress = "https://actionnetwork.org/api/v2/";
+var sendServer = ajaxurl;
+var ANapiKey="' .get_field( 'action_network_api_key', 'user_'. get_current_user_id()). '";
             //////////////////////////////////////////////////////////////////////////////////////////////
             // Get tag categories from Action Network and add to tag_id dropdown
             function fetchTags() {
@@ -84,35 +84,66 @@
                 var tags = resp._embedded["osdi:tags"];
                 
                 for (var x = 0; x < tags.length; x++) {
-                    addToSelect(tags[x].name);
-                    console.log(tags[x].name);
+                    var ref = tags[x][\'_links\'][\'self\'][\'href\'].split(\'/\');
+                    addToSelect(tags[x].name, ref[ref.length - 1] );
                 }
             }
+            
+            function getTaggingsCount(elem) {
+                var xhttp = new XMLHttpRequest();
+                xhttp.addEventListener("load", handleTaggingsResponse);
+                xhttp.open("GET", ANAdress + "tags/" +elem.value+ "/taggings/", true);
+                xhttp.setRequestHeader("OSDI-API-Token", ANapiKey);
+                xhttp.send();
+            }
+            
+            function handleTaggingsResponse() {
+                var total = document.getElementById("recipientTotal");
+                var data = JSON.parse(this.responseText);
+                 total.innerHTML = "Total recipients: " + data["total_records"];
+            }
 
-            function addToSelect(content) {
+            function addToSelect(content, value) {
                 var newTag = document.getElementById("tags");
                 var option = document.createElement("option");
                 option.text = content;
-                newTag.add(option);  
+                option.value = value;
+                newTag.add(option);
             }
 
             //////////////////////////////////////////////////////////////////////////////////////////////
             // Send text message
             function tester() {
+                var message = document.getElementById("message").value;
+                var phone = document.getElementById("phone").value;
                 var xhttp = new XMLHttpRequest();
                 xhttp.addEventListener("load", serverResponse);
-                xhttp.open("GET", sendServer, true);
+                xhttp.open("POST", sendServer, true);
                 xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-                xhttp.send("message="+message+"&TWapiKey="+TWapiKey+"&testphone="+phone);
+                xhttp.send("action=send_test_text&body="+message+"&to="+phone);
             }
 
             // Send real messages
             function sender() {
+                var message = document.getElementById("message").value;
+                var tags = document.getElementById("tags").value;
                 var xhttp = new XMLHttpRequest();
-                xhttp.addEventListener("load", serverResponse);
-                xhttp.open("GET", sendServer, true);
+                xhttp.addEventListener("load", checkProgress);
+                xhttp.open("POST", sendServer, true);
                 xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-                xhttp.send("message="+message+"&ANTag="+tag+"&ANapiKey="+ANapiKey+"&TWapiKey="+TWapiKey);
+                xhttp.send("action=send_bulk_text&body="+message+"&tags="+tag);
+            }
+            
+            function checkProgress() {
+                var response = JSON.parse(this.responseText);
+                document.getElementById("response").innerHTML = "Sent " + response.messagesSent + " messages";
+                setTimeout(function() {
+                    var xhttp = new XMLHttpRequest();
+                    xhttp.addEventListener("load", checkProgress);
+                    xhttp.open("GET", sendServer + "?action=check_progress&pid=" + response.id, true);
+                    xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+                    xhttp.send();
+                }, 60000);
             }
 
             // Post response from server

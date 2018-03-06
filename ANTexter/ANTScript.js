@@ -5,7 +5,6 @@ var count = 0;
 var total = 0;
 var ANAdress = "https://actionnetwork.org/api/v2/";
 var sendServer = "https://";
-var ANapiKey = "095b4e51dccf9c92c464c0e564dd6f32";
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 // Get tag categories from Action Network and add to tag_id dropdown
