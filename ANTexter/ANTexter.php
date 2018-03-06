@@ -100,6 +100,11 @@ function send_bulk_text() {
         echo "Something went wrong: $error_message";
     }
 
+//    if ($response['body']) {
+//        $json = json_decode($response['body'], true);
+//        add_user_meta(get_current_user_id(), "actionTextPID", $json['id'], false);
+//    }
+
     echo $response['body'];
 
     wp_die(); // this is required to terminate immediately and return a proper response

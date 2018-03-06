@@ -7,8 +7,7 @@
 
     add_action( wp_enqueue_scripts, addANtScript );
 
-
-    echo '
+?>
 		<script src="https://code.jquery.com/jquery-3.3.1.min.js"   integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="   crossorigin="anonymous"></script>
     	<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js"></script> 
 		<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css" rel="stylesheet" />
@@ -34,6 +33,7 @@
 			}
         </style>
         <h2>AN Texter with Twillio</h2>
+        <img id="loadingTags" src="<?php echo plugins_url( 'images/loading_spinner.gif', __FILE__ ); ?>" />
         <div>
             <label for="ID Tags">Action Network Tag</label>
             <select class="js-example-basic-single bottom" name="tags" id="tags" onchange="getTaggingsCount(this)">
@@ -41,7 +41,7 @@
             </select>
 		</div>
 		<div>
-		    <span id="recipientTotal"></span>
+		    <span id="recipientTotal">Total recipients: 0</span>
         </div>
         <div class="bottom">
             <label for="message">Message</label>
@@ -53,9 +53,10 @@
             <button type="button" onclick="tester()" >test</button>
 		</div>
 		<div class="sender">
-			<button type="button" onclick="sender()" >send</button>
+			<button id="sendButton" type="button" onclick="sender()" disabled >send</button>
 		</div>
         <div id="response"></div>
+        <img id="sendingTexts" src="<?php echo plugins_url( 'images/loading_spinner.gif', __FILE__ ); ?>" />
         <script>
             window.onload = function() {
                 fetchTags();
@@ -68,7 +69,8 @@ var count = 0;
 var total = 0;
 var ANAdress = "https://actionnetwork.org/api/v2/";
 var sendServer = ajaxurl;
-var ANapiKey="' .get_field( 'action_network_api_key', 'user_'. get_current_user_id()). '";
+var ANapiKey="<?php echo get_field( 'action_network_api_key', 'user_'. get_current_user_id()) ?>";
+var theTagId = "";
             //////////////////////////////////////////////////////////////////////////////////////////////
             // Get tag categories from Action Network and add to tag_id dropdown
             function fetchTags() {
@@ -84,12 +86,14 @@ var ANapiKey="' .get_field( 'action_network_api_key', 'user_'. get_current_user_
                 var tags = resp._embedded["osdi:tags"];
                 
                 for (var x = 0; x < tags.length; x++) {
-                    var ref = tags[x][\'_links\'][\'self\'][\'href\'].split(\'/\');
+                    var ref = tags[x]['_links']['self']['href'].split('/');
                     addToSelect(tags[x].name, ref[ref.length - 1] );
                 }
+                $("#loadingTags").hide();
             }
             
             function getTaggingsCount(elem) {
+                theTag = elem.value;
                 var xhttp = new XMLHttpRequest();
                 xhttp.addEventListener("load", handleTaggingsResponse);
                 xhttp.open("GET", ANAdress + "tags/" +elem.value+ "/taggings/", true);
@@ -101,6 +105,7 @@ var ANapiKey="' .get_field( 'action_network_api_key', 'user_'. get_current_user_
                 var total = document.getElementById("recipientTotal");
                 var data = JSON.parse(this.responseText);
                  total.innerHTML = "Total recipients: " + data["total_records"];
+                document.getElementById("sendButton").disabled = false;
             }
 
             function addToSelect(content, value) {
@@ -125,30 +130,42 @@ var ANapiKey="' .get_field( 'action_network_api_key', 'user_'. get_current_user_
 
             // Send real messages
             function sender() {
-                var message = document.getElementById("message").value;
-                var tags = document.getElementById("tags").value;
-                var xhttp = new XMLHttpRequest();
-                xhttp.addEventListener("load", checkProgress);
-                xhttp.open("POST", sendServer, true);
-                xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-                xhttp.send("action=send_bulk_text&body="+message+"&tags="+tag);
+                if (confirm(document.getElementById("recipientTotal").innerHTML)) {
+                    var message = document.getElementById("message").value;
+                    var xhttp = new XMLHttpRequest();
+                    xhttp.addEventListener("load", checkProgress);
+                    xhttp.open("POST", sendServer, true);
+                    xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+                    xhttp.send("action=send_bulk_text&body=" + message + "&tags=" + theTag);
+                    $("#sendingTexts").show();
+                }
             }
             
             function checkProgress() {
                 var response = JSON.parse(this.responseText);
-                document.getElementById("response").innerHTML = "Sent " + response.messagesSent + " messages";
+                if (response.finish) {
+                    document.getElementById("response").innerHTML = "FINISHED!<br>Total sent: " 
+                        +response.messagesSent+ "<br>Total missing numbers: " 
+                        +response.missingNumbers+ "<br>Total errors: " +response.errors+ "<br>";
+                    $("#sendingTexts").hide();
+                } else if (response.errMsg) {
+                    document.getElementById("response").innerHTML = response.errMsg;
+                } else {
+                    document.getElementById("response").innerHTML = "Sent " + response.messagesSent + " messages";
+                }
+                
                 setTimeout(function() {
                     var xhttp = new XMLHttpRequest();
                     xhttp.addEventListener("load", checkProgress);
                     xhttp.open("GET", sendServer + "?action=check_progress&pid=" + response.id, true);
                     xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
                     xhttp.send();
-                }, 60000);
+                }, 30000);
             }
 
             // Post response from server
             function serverResponse() {
                 document.getElementById("response").innerHTML = this.responseText;
             }
-        </script>';
-?>
+            $("#sendingTexts").hide();
+        </script>
