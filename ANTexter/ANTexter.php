@@ -1,13 +1,13 @@
 <?php
     /** *
-    *Plugin Name: Action Texter
+    *Plugin Name: Action Texts
     *Description: Send custom text messages to groups of users on Action Network
     *Author: CodeWalker Institute
     *Version: 1.0
     **/
 
 
-define(SMS_CAUCUS_URL, 'http://localhost:8080/');
+define(SMS_CAUCUS_URL, 'http://sms-caucus.herokuapp.com/');
 
     add_action("admin_menu", "texter");
 
