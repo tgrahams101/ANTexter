@@ -34,7 +34,7 @@
 				height: 30px;
 			}
       #dialog {
-        display: none;
+
         height: 100%;
         width: 100%;
         background-color: white;
@@ -68,26 +68,20 @@
 		</div>
         <div id="response">HI</div>
         <img id="sendingTexts" src="<?php echo plugins_url( 'images/loading_spinner.gif', __FILE__ ); ?>" />
+
+        <?php if (!get_field( 'action_network_api_key', 'user_'. get_current_user_id()) || !get_field( 'twilio_account_sid', 'user_'. get_current_user_id()) || !get_field( 'twilio_auth_token', 'user_'. get_current_user_id()) || !get_field( 'twilio_from_number', 'user_'. get_current_user_id()) || !get_field('action_texts_api_key', 'user_'. get_current_user_id()) ): ?>
         <div id="dialog"><br><br> <br><br>
           <p> You are missing one or more of your configuration keys. Please follow the link below to insert them.</p>
           <p> <a href='profile.php#your-profile'>Navigate here to add config keys</a> </p>
         </div>
+
+      <?php else: ?>
+      <?php  endif ?>
         <script>
         $("#sendingTexts").hide();
             window.onload = function() {
                 fetchTags();
                 fetchBatches();
-                // $(function() {
-                //   $('#dialog').dialog();
-                // })
-                $(function() {
-                  console.log('from', !from)
-                  if (!ANapiKey || !tasid || !tat || !from || !actionTextsAPI) {
-                    $('#dialog').show();
-                    console.log('AJAX URL', ajaxurl);
-                  }
-                })
-
             };
 
 var message = document.getElementById("message").value;
@@ -97,11 +91,7 @@ var count = 0;
 var total = 0;
 var ANAdress = "https://actionnetwork.org/api/v2/";
 var sendServer = ajaxurl;
-var ANapiKey="<?php echo get_field( 'action_network_api_key', 'user_'. get_current_user_id()) ?>" ;
-var tasid = "<?php echo get_field( 'twilio_account_sid', 'user_'. get_current_user_id()) ?>" ;
-var tat = "<?php print get_field( 'twilio_auth_token', 'user_'. get_current_user_id()) ?>" ;
-var from = "<?php echo get_field( 'twilio_from_number', 'user_'. get_current_user_id()) ?>" ;
-var actionTextsAPI = "<?php echo get_field('action_texts_api_key', 'user_'. get_current_user_id()) ?>" ;
+
 
 
 
@@ -113,7 +103,6 @@ var theTagId = "";
                 var xhttp = new XMLHttpRequest();
                 xhttp.addEventListener("load", getTags);
                 xhttp.open("GET", ajaxurl + "?action=fetch_tags", true);
-                xhttp.setRequestHeader("OSDI-API-Token", ANapiKey);
                 xhttp.send();
             }
 
@@ -132,7 +121,6 @@ var theTagId = "";
               var xhttp = new XMLHttpRequest();
               xhttp.addEventListener("load", getBatches);
               xhttp.open("GET", ajaxurl + "?action=fetch_batches", true);
-              xhttp.setRequestHeader("OSDI-API-Token", ANapiKey);
               xhttp.send();
             }
 
