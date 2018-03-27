@@ -9,8 +9,10 @@
 
 ?>
 		<script src="https://code.jquery.com/jquery-3.3.1.min.js"   integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="   crossorigin="anonymous"></script>
-    	<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js"></script> 
+    	<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js"></script>
 		<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css" rel="stylesheet" />
+      <script
+      src="https://cdn.jsdelivr.net/npm/moment@2.21.0/moment.min.js"> </script>
 		<style>
             body {
                 font-family: sans-serif;
@@ -31,6 +33,15 @@
 			button {
 				height: 30px;
 			}
+      #dialog {
+        display: none;
+        height: 100%;
+        width: 100%;
+        background-color: white;
+        position: absolute;
+        left: 0;
+        top: 0;
+      }
         </style>
         <h2>AN Texter with Twillio</h2>
         <img id="loadingTags" src="<?php echo plugins_url( 'images/loading_spinner.gif', __FILE__ ); ?>" />
@@ -55,43 +66,96 @@
 		<div class="sender">
 			<button id="sendButton" type="button" onclick="sender()" disabled >send</button>
 		</div>
-        <div id="response"></div>
+        <div id="response">HI</div>
         <img id="sendingTexts" src="<?php echo plugins_url( 'images/loading_spinner.gif', __FILE__ ); ?>" />
+        <div id="dialog"><br><br> <br><br>
+          <p> You are missing one or more of your configuration keys. Please follow the link below to insert them.</p>
+          <p> <a href='profile.php#mceu_57'>Navigate here to add config keys</a> </p>
+        </div>
         <script>
+        $("#sendingTexts").hide();
             window.onload = function() {
                 fetchTags();
+                fetchBatches();
+                // $(function() {
+                //   $('#dialog').dialog();
+                // })
+                $(function() {
+                  console.log('from', !from)
+                  if (!ANapiKey || !tasid || !tat || !from || !actionTextsAPI) {
+                    $('#dialog').show();
+                    console.log('AJAX URL', ajaxurl);
+                  }
+                })
+
             };
 
-	var message = document.getElementById("message").value;
+var message = document.getElementById("message").value;
 var tag = document.getElementById("tags").value;
 var phone = document.getElementById("phone").value;
 var count = 0;
 var total = 0;
 var ANAdress = "https://actionnetwork.org/api/v2/";
 var sendServer = ajaxurl;
-var ANapiKey="<?php echo get_field( 'action_network_api_key', 'user_'. get_current_user_id()) ?>";
+var ANapiKey="<?php echo get_field( 'action_network_api_key', 'user_'. get_current_user_id()) ?>" ;
+var tasid = "<?php echo get_field( 'twilio_account_sid', 'user_'. get_current_user_id()) ?>" ;
+var tat = "<?php print get_field( 'twilio_auth_token', 'user_'. get_current_user_id()) ?>" ;
+var from = "<?php echo get_field( 'twilio_from_number', 'user_'. get_current_user_id()) ?>" ;
+var actionTextsAPI = "<?php echo get_field('action_texts_api_key', 'user_'. get_current_user_id()) ?>" ;
+
+
+
+
 var theTagId = "";
             //////////////////////////////////////////////////////////////////////////////////////////////
             // Get tag categories from Action Network and add to tag_id dropdown
             function fetchTags() {
                 var xhttp = new XMLHttpRequest();
                 xhttp.addEventListener("load", getTags);
-                xhttp.open("GET", ANAdress + "tags/", true);
+                xhttp.open("GET", ajaxurl + "?action=fetch_tags", true);
                 xhttp.setRequestHeader("OSDI-API-Token", ANapiKey);
                 xhttp.send();
             }
 
-            function getTags() {            
+            function getTags() {
                 var resp = JSON.parse(this.responseText);
                 var tags = resp._embedded["osdi:tags"];
-                
+
                 for (var x = 0; x < tags.length; x++) {
                     var ref = tags[x]['_links']['self']['href'].split('/');
                     addToSelect(tags[x].name, ref[ref.length - 1] );
                 }
                 $("#loadingTags").hide();
             }
-            
+
+            function fetchBatches() {
+              var xhttp = new XMLHttpRequest();
+              xhttp.addEventListener("load", getBatches);
+              xhttp.open("GET", ajaxurl + "?action=fetch_batches", true);
+              xhttp.setRequestHeader("OSDI-API-Token", ANapiKey);
+              xhttp.send();
+            }
+
+            function getBatches() {
+              console.log('THIS BINDING', this);
+              console.log('I GOT THE BATCHES BRUH');
+              var resp = JSON.parse(this.responseText);
+              console.log(typeof resp, Array.isArray(resp), resp.length, resp[0]);
+              var htmlStrings = [];
+
+
+              for (var i = 0; i < resp.length; i++) {
+                  var dateObject = new Date(resp[i].finish);
+                  var momentObject = moment(dateObject);
+                  var momentString = momentObject.format('MMMM Do YYYY, h:mm:ss a')
+                var html  = '<div><h2> Batch Number #' + (i + 1) + '</h2> <p><b> Time sent:</b> ' + momentString + '</p> <p><b> Message sent was:</b> ' + resp[i].message + '</p><p><b>Messages sent:</b> ' + resp[i].messagesSent + '</div><hr />';
+                htmlStrings.push(html);
+              }
+
+              $('#response').html(htmlStrings.join());
+
+            }
+
             function getTaggingsCount(elem) {
                 theTag = elem.value;
                 var xhttp = new XMLHttpRequest();

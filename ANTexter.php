@@ -8,6 +8,7 @@
 
 
 define(SMS_CAUCUS_URL, 'http://sms-caucus.herokuapp.com/');
+define(AN_URL, 'https://actionnetwork.org/api/v2/');
 
     add_action("admin_menu", "texter");
 
@@ -110,9 +111,51 @@ function send_bulk_text() {
     wp_die(); // this is required to terminate immediately and return a proper response
 }
 
+add_action('wp_ajax_fetch_batches', 'fetch_batches');
+
+function fetch_batches() {
+
+  $api_key = get_field( 'action_texts_api_key', 'user_'. get_current_user_id() );
+  $response =   $response = wp_remote_get(SMS_CAUCUS_URL . 'check-all-stats?apiKey=' . $api_key );
+
+  if (is_wp_error( $response ) ) {
+    $error_message = $response->get_error_message();
+    echo "Something went wrong: $error_message";
+  }
+  echo $response['body'];
+
+  wp_die();
+
+}
+
+add_action('wp_ajax_fetch_tags', 'fetch_tags');
+// function fetchTags() {
+//     var xhttp = new XMLHttpRequest();
+//     xhttp.addEventListener("load", getTags);
+//     xhttp.open("GET", ANAdress + "tags/", true);
+//     xhttp.setRequestHeader("OSDI-API-Token", ANapiKey);
+//     xhttp.send();
+// }
+
+function fetch_tags() {
+  $api_key = get_field( 'action_network_api_key', 'user_'. get_current_user_id());
+  $response = wp_remote_get(AN_URL . 'tags/', array(
+            'headers' => array('OSDI-API-Token' => $api_key)
+               )
+              );
+
+  if (is_wp_error( $response ) ) {
+    $error_message = $response->get_error_message();
+    echo "Something went wrong: $error_message";
+  }
+  echo $response['body'];
+
+  wp_die();
+}
+
 add_action( 'wp_ajax_check_progress', 'check_progress' );
 function check_progress() {
-    $response = wp_remote_get(SMS_CAUCUS_URL . 'check-stats?pid=' . $_GET['pid']);
+    $response = wp_remote_get(SMS_CAUCUS_URL . 'check-stats?pid=' . $_GET['pid'] . '&apiKey=' . get_field( 'action_texts_api_key', 'user_'. get_current_user_id()) );
 
     if ( is_wp_error( $response ) ) {
         $error_message = $response->get_error_message();
