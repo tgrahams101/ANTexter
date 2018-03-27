@@ -70,7 +70,7 @@
         <img id="sendingTexts" src="<?php echo plugins_url( 'images/loading_spinner.gif', __FILE__ ); ?>" />
         <div id="dialog"><br><br> <br><br>
           <p> You are missing one or more of your configuration keys. Please follow the link below to insert them.</p>
-          <p> <a href='profile.php#mceu_57'>Navigate here to add config keys</a> </p>
+          <p> <a href='profile.php#your-profile'>Navigate here to add config keys</a> </p>
         </div>
         <script>
         $("#sendingTexts").hide();
@@ -164,7 +164,7 @@ var theTagId = "";
                 xhttp.setRequestHeader("OSDI-API-Token", ANapiKey);
                 xhttp.send();
             }
-            
+
             function handleTaggingsResponse() {
                 var total = document.getElementById("recipientTotal");
                 var data = JSON.parse(this.responseText);
@@ -204,12 +204,12 @@ var theTagId = "";
                     $("#sendingTexts").show();
                 }
             }
-            
+
             function checkProgress() {
                 var response = JSON.parse(this.responseText);
                 if (response.finish) {
-                    document.getElementById("response").innerHTML = "FINISHED!<br>Total sent: " 
-                        +response.messagesSent+ "<br>Total missing numbers: " 
+                    document.getElementById("response").innerHTML = "FINISHED!<br>Total sent: "
+                        +response.messagesSent+ "<br>Total missing numbers: "
                         +response.missingNumbers+ "<br>Total errors: " +response.errors+ "<br>";
                     $("#sendingTexts").hide();
                 } else if (response.errMsg) {
@@ -217,7 +217,7 @@ var theTagId = "";
                 } else {
                     document.getElementById("response").innerHTML = "Sent " + response.messagesSent + " messages";
                 }
-                
+
                 setTimeout(function() {
                     var xhttp = new XMLHttpRequest();
                     xhttp.addEventListener("load", checkProgress);
