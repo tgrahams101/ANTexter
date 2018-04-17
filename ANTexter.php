@@ -78,6 +78,92 @@ function send_test_text() {
     wp_die(); // this is required to terminate immediately and return a proper response
 }
 
+add_action('wp_ajax_get_flows', 'get_flows');
+
+function get_flows() {
+  $api_key = 'teds-fake-test';
+
+  $response = wp_remote_get(SMS_CAUCUS_URL . 'sms-flow/' . $api_key);
+
+  if (is_wp_error( $response ) ) {
+    $error_message = $response->get_error_message();
+    echo "Something went wrong: $error_message";
+  }
+
+  echo $response["body"];
+
+  wp_die();
+
+}
+
+
+add_action('wp_ajax_post_flow', 'post_flow');
+
+function post_flow() {
+  $api_key = 'teds-fake-test';
+  // $data = file_get_contents("php://input");
+  // $post_body = strval($_POST['body']);
+  // $post_body = json_decode( $post_body );
+  $post_body = stripslashes($_POST['body']);
+
+  $postData = array(
+    'title'=> 'Example flow',
+    'activationKeyword' => 'GUCCI',
+    'foreignPath'=> 'POST',
+    'steps' => array(
+      array(
+        'prompt' => 'What is your email?',
+        'foreignName' => 'email'
+      ),
+      array(
+        'prompt'=> 'What is your name?',
+        'foreignName' => 'name'
+      ),
+      array(
+        'prompt'=> 'What is your zip code?',
+        'foreignName' => 'zipcode'
+      )
+    )
+  );
+
+  $response = wp_remote_post(SMS_CAUCUS_URL . 'sms-flow/' . $api_key, array(
+    'headers'   => array('Content-Type' => 'application/json; charset=utf-8'),
+    'body'      => $post_body,
+    'method'    => 'POST'
+));
+
+  if (is_wp_error( $response ) ) {
+    $error_message = $response->get_error_message();
+    echo "Something went wrong: $error_message";
+  }
+  echo $response["body"];
+
+  wp_die();
+}
+add_action('wp_ajax_put_flow', 'put_flow');
+
+function put_flow() {
+  $api_key = 'teds-fake-test';
+  // $data = file_get_contents("php://input");
+  // $post_body = strval($_POST['body']);
+  // $post_body = json_decode( $post_body );
+  $put_body = stripslashes($_POST['body']);
+
+  $response = wp_remote_post(SMS_CAUCUS_URL . 'sms-flow/' . $api_key, array(
+    'headers'   => array('Content-Type' => 'application/json; charset=utf-8'),
+    'body'      => $put_body,
+    'method'    => 'PUT'
+));
+
+  if (is_wp_error( $response ) ) {
+    $error_message = $response->get_error_message();
+    echo "Something went wrong: $error_message";
+  }
+  echo $response["body"];
+
+  wp_die();
+}
+
 add_action( 'wp_ajax_send_bulk_text', 'send_bulk_text' );
 //@FormParam("tasid") String twilioAccountSid, @FormParam("tat") String twilioAuthToken,
 //                           @FormParam("tsid") String twilioServiceId, @FormParam("from") String from,
