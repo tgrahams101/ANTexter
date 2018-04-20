@@ -218,9 +218,18 @@
       const p = document.createElement('p');
       p.id = 'newP';
       const select = document.createElement('select');
-      const option = document.createElement('option');
-      option.value = 'default';
-      option.text = 'Default';
+      const option1 = document.createElement('option');
+      option.value = 'firstName';
+      option.text = 'First name';
+      const option2 = document.createElement('option');
+      option.value = 'lastName';
+      option.text = 'Last name';
+      const option3 = document.createElement('option');
+      option.value = 'email';
+      option.text = 'E-mail';
+      const option4 = document.createElement('option');
+      option.value = 'zipCode';
+      option.text = 'Zip Code';
       const input = document.createElement('input', {type: 'text'});
       const deleteButton = document.createElement('button');
       deleteButton.append('Delete');
@@ -230,7 +239,15 @@
         deleteButton.parentNode.parentNode.removeChild(p);
       });
 
-      select.appendChild(option);
+      select.appendChild(option1);
+      select.appendChild(option2);
+      select.appendChild(option3);
+      select.appendChild(option4);
+
+      select.onchange = function() {
+        console.log('ON CHANGE! OF SELECT FIELD');
+        currentFlow.steps[newStepIndex].foreignName = select.value;
+      }
 
       p.append('Request for field: ');
       p.append(select);
@@ -306,6 +323,7 @@
   var ANAdress = "https://actionnetwork.org/api/v2/";
   var sendServer = ajaxurl;
   var activeFlow = {};
+  var ANForms = "https://actionnetwork.org/api/v2/forms";
 
 
 
@@ -408,6 +426,21 @@
         console.log('TITLE INPUT CHANGED', currentFlow);
       }
     });
+  }
+
+  function getForms() {
+      theTag = elem.value;
+      var xhttp = new XMLHttpRequest();
+      xhttp.addEventListener("load", handleForms);
+      xhttp.open("GET", ANForms, true);
+      xhttp.setRequestHeader("OSDI-API-Token", ANapiKey);
+      xhttp.send();
+  }
+
+  function handleForms() {
+    var data = JSON.parse(this.response);
+    var formsIds = data['_links']['osdi:forms'];
+    var formsCount = formsIds.length;
   }
 
   function getTaggingsCount(elem) {
