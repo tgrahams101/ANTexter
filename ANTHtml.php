@@ -147,25 +147,25 @@
         <div id="flow_form">  <button id="closeForm"> X </button>
           <button id="addNewField"> Add new field </button>
           <form id="form">
-            <p> <strong> Select Action Network form to sync flow to </strong> <select name="whichForm" id="formSelect"> </select> </p>
+            <p> <strong> Select Action Network form to sync flow to </strong> <select name="whichForm" id="formSelect"><option value="placeholder"> Placeholder </option> </select> </p>
             <hr />
             <p> What is the name of this flow? <input type="text" name="title" id="titleInput"> </input></p>
             <p> Enter key word to start flow <input type="text" name="keyWord" id="keyWordInput"> </input></p>
             <div id="requestDiv">
               <p> Request for field:
-                <select name="field1">
+                <select name="field1" id="fieldSelect1">
                    <option value="firstName"> First Name</option>
                    <option value="lastName"> Last Name</option>
                    <option value="email"> E-mail</option>
                    <option value="zipCode"> Zip Code</option>
                  </select>
-                 <input type="text" name="field1Value">
+                 <input type="text" name="field1Value" id="fieldInput1">
                  </input>
               </p>
 
             </div>
             <p> THANK YOU TEXT <input type="text" name="thankYou" id="thankYouInput"> </input></p>
-            <input type="submit"> Submit </input>
+            <input type="submit"> </input>
           </form>
         </div>
       </div>
@@ -198,8 +198,8 @@
     "foreignMethod": "POST",
     "steps": [
       {
-        "prompt": "What is your email?",
-        "foreignName": "email"
+        "prompt": "What is your first name?",
+        "foreignName": "firstName"
       }, {
         "prompt": "Thank You sir/mam"
       }
@@ -286,28 +286,6 @@
     const formObject = event.target.elements;
     console.log('FORM OBJECT', formObject);
 
-    const flowObject =   {
-      "title": formObject["title"].value,
-      "activationKeyword": formObject["keyWord"].value || "Hello",
-      "foreignPath": "https://actionnetwork.org/forms/join-from-sms/answers",
-      "foreignMethod": "POST",
-      "steps": [
-        {
-          "prompt": formObject["field1Value"].value || "What is your email?",
-          "foreignName": "email"
-        },
-        {
-          "prompt": formObject["field2Value"].value || "What is your name?",
-          "foreignName": "name"
-        },
-        {
-          "prompt": formObject["field3Value"].value || "What is your zip code?",
-          "foreignName": "zipcode"
-        }, {
-          "prompt": formObject["thankYou"].value
-        }
-      ]
-    };
     // console.log('FLOW OBJECT WITHIN FORM SUBMIT', flowObject);
     if (currentFlow.id) {
       putFlow(currentFlow);
@@ -423,7 +401,7 @@
     });
     $('#thankYouInput').on('input', function (event) {
       if (currentFlow) {
-        currentFlow.steps[currentFlow.steps.length - 1].prompt = event.target.value;
+        currentFlow.steps[currentFlow.steps.length - 1].prompt = this.value;
         console.log('THANK YOU CHANGED', currentFlow);
       }
     });
@@ -431,6 +409,25 @@
       if (currentFlow) {
         currentFlow.title = event.target.value;
         console.log('TITLE INPUT CHANGED', currentFlow);
+      }
+    });
+
+    $('#formSelect').on('change', function (event) {
+      if (currentFlow) {
+        currentFlow.foreignPath = this.value;
+        console.log('CURRENT FLOW AFTER FORM SELECT CHANGE', currentFlow);
+      }
+    });
+
+    $('#fieldSelect1').on('change', function(event) {
+      if (currentFlow) {
+        currentFlow.steps[0].foreignName = this.value;
+        console.log('CURRENT FLOW AFTER FORM SELECT CHANGE', currentFlow);
+      }
+    });
+    $('#fieldInput1').on('input', function(event) {
+      if (currentFlow) {
+        currentFlow.steps[0].prompt = this.value;
       }
     });
   }
