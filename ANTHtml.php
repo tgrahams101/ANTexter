@@ -147,7 +147,7 @@
         <div id="flow_form">  <button id="closeForm"> X </button>
           <button id="addNewField"> Add new field </button>
           <form id="form">
-            <p> <strong> Select Action Network form to sync flow to </strong> <select name="whichForm"> <option value="default"> Default</option> </select> </p>
+            <p> <strong> Select Action Network form to sync flow to </strong> <select name="whichForm" id="formSelect"> </select> </p>
             <hr />
             <p> What is the name of this flow? <input type="text" name="title" id="titleInput"> </input></p>
             <p> Enter key word to start flow <input type="text" name="keyWord" id="keyWordInput"> </input></p>
@@ -385,24 +385,35 @@
     let htmlArray = [];
 
     for (let i = 0; i < flows.length; i++) {
-      let flowEntry = '<p>' + flows[i].title + '<button class="editButton" id="flow' + i + '"> EDIT </button></p>';
-      htmlArray.push(flowEntry);
-    }
-    $('#flow_list').html(htmlArray.join(''));
-
-    $('.editButton').on('click', (event) => {
-      let id = event.target.id;
-      let sliced = id.split('w');
-      let number = parseInt(sliced[1]);
-      currentFlow = flows[number];
-      if (currentFlow) {
-        const keyword = $('#keyWordInput');
-        const thankYou = $('#thankYou');
-        console.log(keyword.val());
-        keyword.val(currentFlow.activationKeyword);
+      let flowPElement = document.createElement('p');
+      flowPElement.append(flows[i].title);
+      let flowButtonElement = document.createElement('button');
+      flowButtonElement.className = 'editButton';
+      flowButtonElement.append('EDIT');
+      flowButtonElement.id = `flow${i}`;
+      flowButtonElement.onclick = function(event) {
+        let id = this.id;
+        console.log('THIS FLOW\'S ID', id)
+        let sliced = id.split('w');
+        let number = parseInt(sliced[1]);
+        currentFlow = flows[number];
+        console.log('CURRENT FLOW', currentFlow);
+        if (currentFlow) {
+          const keyword = $('#keyWordInput');
+          const thankYou = $('#thankYou');
+          console.log(keyword.val());
+          keyword.val(currentFlow.activationKeyword);
+        }
+        $('#flow_form').toggle();
       }
-      $('#flow_form').toggle();
-    });
+
+
+      flowPElement.append(flowButtonElement);
+
+      htmlArray.push(flowPElement);
+    }
+    $('#flow_list').html();
+    $('#flow_list').append(htmlArray);
 
     $('#keyWordInput').on('input', function (event) {
       if (currentFlow) {
@@ -433,11 +444,22 @@
 
   function handleForms() {
     console.log('HANDLE FORMS', this);
-    var data = JSON.parse(this.responseText);
+    const data = JSON.parse(this.responseText);
     console.log('RESPONSE JSON', data);
-    var formsIds = data['_links']['osdi:forms'];
+    const formsIds = data['_embedded']['osdi:forms'];
+    let optionsList = [];
+    for (let i = 0; i < formsIds.length; i++) {
+      const currentFormObject = formsIds[i];
+      let option = document.createElement('option');
+      option.value = currentFormObject.browser_url;
+      option.text = currentFormObject.title;
+      optionsList.push(option);
+    }
+
+    $('#formSelect').html();
+    $('#formSelect').append(optionsList);
     console.log('FORM ID URLS', formsIds);
-    var formsCount = formsIds.length;
+
   }
 
   function getTaggingsCount(elem) {
