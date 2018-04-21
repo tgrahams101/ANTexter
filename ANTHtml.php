@@ -152,9 +152,17 @@
             <p> What is the name of this flow? <input type="text" name="title" id="titleInput"> </input></p>
             <p> Enter key word to start flow <input type="text" name="keyWord" id="keyWordInput"> </input></p>
             <div id="requestDiv">
-              <p> Request for field: <select name="field1"> <option value="default"> Default</option> <option value="default"> Default</option> </select><input type="text" name="field1Value"> </input></p>
-              <p> Request for field: <select name="field2"><option value="default"> Default</option> </select><input type="text" name="field2Value"> </input></p>
-              <p> Request for field: <select name="field3"><option value="default"> Default</option> </select> <input type="text" name="field3Value"> </input></p>
+              <p> Request for field:
+                <select name="field1">
+                   <option value="firstName"> First Name</option>
+                   <option value="lastName"> Last Name</option>
+                   <option value="email"> E-mail</option>
+                   <option value="zipCode"> Zip Code</option>
+                 </select>
+                 <input type="text" name="field1Value">
+                 </input>
+              </p>
+
             </div>
             <p> THANK YOU TEXT <input type="text" name="thankYou" id="thankYouInput"> </input></p>
             <input type="submit"> Submit </input>
@@ -173,6 +181,16 @@
   <?php  endif ?>
 </main>
 <script>
+  const message = document.getElementById("message").value;
+  const tag = document.getElementById("tags").value;
+  const phone = document.getElementById("phone").value;
+  const count = 0;
+  const total = 0;
+  const ANAdress = "https://actionnetwork.org/api/v2/";
+  const sendServer = ajaxurl;
+  const activeFlow = {};
+  const ANForms = "https://actionnetwork.org/api/v2/forms";
+  const theTagId = "";
   const flowBase =   {
     "title": 'Default Title',
     "activationKeyword": 'Default Keyword',
@@ -182,14 +200,6 @@
       {
         "prompt": "What is your email?",
         "foreignName": "email"
-      },
-      {
-        "prompt": "What is your name?",
-        "foreignName": "name"
-      },
-      {
-        "prompt": "What is your zip code?",
-        "foreignName": "zipcode"
       }, {
         "prompt": "Thank You sir/mam"
       }
@@ -312,24 +322,10 @@
       fetchTags();
       fetchBatches();
       getFlows();
-
+      fetchForms();
   };
 
-  var message = document.getElementById("message").value;
-  var tag = document.getElementById("tags").value;
-  var phone = document.getElementById("phone").value;
-  var count = 0;
-  var total = 0;
-  var ANAdress = "https://actionnetwork.org/api/v2/";
-  var sendServer = ajaxurl;
-  var activeFlow = {};
-  var ANForms = "https://actionnetwork.org/api/v2/forms";
 
-
-
-
-
-  var theTagId = "";
   //////////////////////////////////////////////////////////////////////////////////////////////
   // Get tag categories from Action Network and add to tag_id dropdown
   function fetchTags() {
@@ -428,18 +424,19 @@
     });
   }
 
-  function getForms() {
-      theTag = elem.value;
-      var xhttp = new XMLHttpRequest();
-      xhttp.addEventListener("load", handleForms);
-      xhttp.open("GET", ANForms, true);
-      xhttp.setRequestHeader("OSDI-API-Token", ANapiKey);
-      xhttp.send();
+  function fetchForms() {
+    var xhttp = new XMLHttpRequest();
+    xhttp.addEventListener("load", handleForms);
+    xhttp.open("GET", ajaxurl + "?action=fetch_forms", true);
+    xhttp.send();
   }
 
   function handleForms() {
-    var data = JSON.parse(this.response);
+    console.log('HANDLE FORMS', this);
+    var data = JSON.parse(this.responseText);
+    console.log('RESPONSE JSON', data);
     var formsIds = data['_links']['osdi:forms'];
+    console.log('FORM ID URLS', formsIds);
     var formsCount = formsIds.length;
   }
 

@@ -9,6 +9,7 @@
 
 define(SMS_CAUCUS_URL, 'http://sms-caucus.herokuapp.com/');
 define(AN_URL, 'https://actionnetwork.org/api/v2/');
+define(FORMS_URL, 'https://actionnetwork.org/api/v2/forms');
 
     add_action("admin_menu", "texter");
 
@@ -28,7 +29,7 @@ define(AN_URL, 'https://actionnetwork.org/api/v2/');
         if (!is_plugin_active('advanced-custom-fields/acf.php')) {
             // Deactivate the plugin
 				deactivate_plugins(__FILE__);
-				
+
 				// Throw an error in the wordpress admin console
 				$error_message = __('This plugin requires the <a href="https://www.advancedcustomfields.com/">Advanced Custom Fields</a> plugin to be active!', 'advanced_custom_fields');
 				die($error_message);
@@ -65,7 +66,7 @@ function send_test_text() {
         "from" => get_field( 'twilio_from_number', 'user_'. get_current_user_id()),
         "apiKey" => get_field('action_texts_api_key', 'user_'. get_current_user_id())
     );
-    
+
     $response = wp_remote_post(SMS_CAUCUS_URL . 'send-test-text', array( "body" => $postData));
 
     if ( is_wp_error( $response ) ) {
@@ -77,6 +78,27 @@ function send_test_text() {
 
     wp_die(); // this is required to terminate immediately and return a proper response
 }
+
+add_action('wp_ajax_fetch_forms', 'fetch_forms');
+
+function fetch_forms() {
+  $api_key = '095b4e51dccf9c92c464c0e564dd6f32';
+
+  $response = wp_remote_get(FORMS_URL, array(
+            'headers' => array('OSDI-API-Token' => $api_key)
+               ));
+
+  if (is_wp_error( $response ) ) {
+    $error_message = $response->get_error_message();
+    echo "Something went wrong: $error_message";
+  }
+
+  echo $response["body"];
+
+  wp_die();
+
+}
+
 
 add_action('wp_ajax_get_flows', 'get_flows');
 
