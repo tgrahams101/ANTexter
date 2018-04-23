@@ -301,6 +301,7 @@
       fetchBatches();
       getFlows();
       fetchForms();
+      attachFormEventHandlers();
   };
 
 
@@ -393,6 +394,9 @@
     $('#flow_list').html();
     $('#flow_list').append(htmlArray);
 
+  }
+
+  function attachFormEventHandlers() {
     $('#keyWordInput').on('input', function (event) {
       if (currentFlow) {
         currentFlow.activationKeyword = event.target.value;
