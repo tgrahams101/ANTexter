@@ -207,102 +207,18 @@
   };
 
   let currentFlow = flowBase;
-  $("#sendingTexts").hide();
+  let activeFlowIndex = null;
 
-  $("#newFlow_button").click(function() {
-    currentFlow = flowBase;
-
-    $('#form')[0].reset();
-
-    $("#flow_form").toggle();
-    $('#addNewField').on('click', function() {
-      console.log('ADD NEW FIELD BUTTON CLICKED!');
-      const currentStepLength = currentFlow.steps.length;
-      const newStepIndex = currentStepLength - 1;
-      console.log('OLD CURRENT FLOW', currentFlow);
-      currentFlow.steps.splice(newStepIndex, 0, {
-        prompt: null,
-        foreignName: 'default'
-      })
-
-      const p = document.createElement('p');
-      p.id = 'newP';
-      const select = document.createElement('select');
-      const option1 = document.createElement('option');
-      option1.value = 'firstName';
-      option1.text = 'First name';
-      const option2 = document.createElement('option');
-      option2.value = 'lastName';
-      option2.text = 'Last name';
-      const option3 = document.createElement('option');
-      option3.value = 'email';
-      option3.text = 'E-mail';
-      const option4 = document.createElement('option');
-      option4.value = 'zipCode';
-      option4.text = 'Zip Code';
-      const input = document.createElement('input', {type: 'text'});
-      const deleteButton = document.createElement('button');
-      deleteButton.append('Delete');
-      deleteButton.addEventListener('click', function(){
-        currentFlow.steps.splice(newStepIndex, 1);
-        console.log('CURRENT FLOW AFTER DELETION', currentFlow);
-        deleteButton.parentNode.parentNode.removeChild(p);
-      });
-
-      select.appendChild(option1);
-      select.appendChild(option2);
-      select.appendChild(option3);
-      select.appendChild(option4);
-
-      select.onchange = function() {
-        console.log('ON CHANGE! OF SELECT FIELD');
-        currentFlow.steps[newStepIndex].foreignName = select.value;
-      }
-
-      p.append('Request for field: ');
-      p.append(select);
-      p.append(input);
-      p.append(deleteButton);
-      input.oninput = function(event) {
-        currentFlow.steps[newStepIndex].prompt = input.value;
-      };
-
-      p.onclick = function(event){
-        console.log('ON CLICK ON P');
-      }
-      console.log('CONSTRUCTED P', p);
-      $('#requestDiv').append(p);
-    });
-
-
+  document.addEventListener("DOMContentLoaded", function() {
+    $("#sendingTexts").hide();
+    fetchTags();
+    fetchBatches();
+    getFlows();
+    fetchForms();
+    newFlowEventHandler();
+    attachSubmitAndCloseForm();
+    attachFormChangeEventHandlers();
   });
-
-  $("#closeForm").click(function() {
-    console.log('CURRENT FLOW', currentFlow);
-    $("#flow_form").toggle();
-  });
-  $("#form").submit(function(event) {
-    event.preventDefault();
-    const formObject = event.target.elements;
-    console.log('FORM OBJECT', formObject);
-
-    // console.log('FLOW OBJECT WITHIN FORM SUBMIT', flowObject);
-    if (currentFlow.id) {
-      putFlow(currentFlow);
-    } else {
-      postFlows(currentFlow);
-      console.log('UMM OK');
-      $('#form')[0].reset();
-    }
-  });
-
-  window.onload = function() {
-      fetchTags();
-      fetchBatches();
-      getFlows();
-      fetchForms();
-      attachFormEventHandlers();
-  };
 
 
   //////////////////////////////////////////////////////////////////////////////////////////////
@@ -350,6 +266,75 @@
 
   }
 
+  function newFlowEventHandler() {
+
+    $("#newFlow_button").click(function() {
+      currentFlow = flowBase;
+
+      $('#form')[0].reset();
+
+      $("#flow_form").toggle();
+      $('#addNewField').on('click', function() {
+        console.log('ADD NEW FIELD BUTTON CLICKED!');
+        const currentStepLength = currentFlow.steps.length;
+        const newStepIndex = currentStepLength - 1;
+        console.log('OLD CURRENT FLOW', currentFlow);
+        currentFlow.steps.splice(newStepIndex, 0, {
+          prompt: null,
+          foreignName: 'default'
+        })
+
+        const p = document.createElement('p');
+        p.id = 'newP';
+        const select = document.createElement('select');
+        const option1 = document.createElement('option');
+        option1.value = 'firstName';
+        option1.text = 'First name';
+        const option2 = document.createElement('option');
+        option2.value = 'lastName';
+        option2.text = 'Last name';
+        const option3 = document.createElement('option');
+        option3.value = 'email';
+        option3.text = 'E-mail';
+        const option4 = document.createElement('option');
+        option4.value = 'zipCode';
+        option4.text = 'Zip Code';
+        const input = document.createElement('input', {type: 'text'});
+        const deleteButton = document.createElement('button');
+        deleteButton.append('Delete');
+        deleteButton.addEventListener('click', function(){
+          currentFlow.steps.splice(newStepIndex, 1);
+          console.log('CURRENT FLOW AFTER DELETION', currentFlow);
+          deleteButton.parentNode.parentNode.removeChild(p);
+        });
+
+        select.appendChild(option1);
+        select.appendChild(option2);
+        select.appendChild(option3);
+        select.appendChild(option4);
+
+        select.onchange = function() {
+          console.log('ON CHANGE! OF SELECT FIELD');
+          currentFlow.steps[newStepIndex].foreignName = select.value;
+        }
+
+        p.append('Request for field: ');
+        p.append(select);
+        p.append(input);
+        p.append(deleteButton);
+        input.oninput = function(event) {
+          currentFlow.steps[newStepIndex].prompt = input.value;
+        };
+
+        p.onclick = function(event){
+          console.log('ON CLICK ON P');
+        }
+        console.log('CONSTRUCTED P', p);
+        $('#requestDiv').append(p);
+      });
+    });
+  }
+
   function getFlows() {
     var xhttp = new XMLHttpRequest();
     xhttp.addEventListener("load", displayFlows);
@@ -359,13 +344,49 @@
 
   function displayFlows() {
     // console.log('RESPONSE FROM GET FLOWS', JSON.parse(this.response));
-    const flows = JSON.parse(this.response);
+    let flows = JSON.parse(this.response);
     console.log('RESPONSE FROM GET FLOWS', typeof flows, Array.isArray(flows), flows[0].title);
     let htmlArray = [];
 
     for (let i = 0; i < flows.length; i++) {
+      if (flows[i].active) {
+        activeFlowIndex = i;
+      }
+
       let flowPElement = document.createElement('p');
       flowPElement.append(flows[i].title);
+
+      let flowRadioElement = document.createElement('input');
+      flowRadioElement.type = 'radio';
+      flowRadioElement.name = "isActiveFlow";
+      flowRadioElement.value = `isActive${i}`;
+      flowRadioElement.id = `radio${i}`;
+      flowRadioElement.className = 'radioButton';
+      if (activeFlowIndex === i) {
+        flowRadioElement.checked = 'checked';
+      }
+      flowRadioElement.addEventListener('change', function(event) {
+        console.log('RADIO INPUT CLICKED AT', typeof this.value.split('e')[1])
+        const targetFlow = flows[i];
+        console.log('TARGET FLOW', targetFlow)
+        //This is to handle existing active flow requirement to be changed
+        if (activeFlowIndex !== null && activeFlowIndex !== i) {
+          flows[activeFlowIndex].active = null;
+          putFlow(flows[activeFlowIndex], true, true);
+
+          activeFlowIndex = i;
+          flows[i].active = true;
+          putFlow(flows[i], true)
+
+        } else if (activeFlowIndex === null) {
+          flows[i].active = true;
+          activeFlowIndex = i;
+          console.log('NOW THERE\'S AN ACTIVE FLOW', i);
+          putFlow(flows[i], true);
+        }
+      });
+      flowPElement.append(flowRadioElement);
+
       let flowButtonElement = document.createElement('button');
       flowButtonElement.className = 'editButton';
       flowButtonElement.append('EDIT');
@@ -377,12 +398,7 @@
         let number = parseInt(sliced[1]);
         currentFlow = flows[number];
         console.log('CURRENT FLOW', currentFlow);
-        if (currentFlow) {
-          const keyword = $('#keyWordInput');
-          const thankYou = $('#thankYou');
-          console.log(keyword.val());
-          keyword.val(currentFlow.activationKeyword);
-        }
+        prepopulateForm();
         $('#flow_form').toggle();
       }
 
@@ -396,7 +412,37 @@
 
   }
 
-  function attachFormEventHandlers() {
+  function prepopulateForm() {
+    if (currentFlow) {
+      const keyword = $('#keyWordInput');
+      const thankYou = $('#thankYou');
+      console.log(keyword.val());
+      keyword.val(currentFlow.activationKeyword);
+    }
+  }
+
+  function attachSubmitAndCloseForm() {
+    $("#form").submit(function(event) {
+      event.preventDefault();
+      const formObject = event.target.elements;
+      console.log('FORM OBJECT', formObject);
+
+      // console.log('FLOW OBJECT WITHIN FORM SUBMIT', flowObject);
+      if (currentFlow.id) {
+        putFlow(currentFlow);
+      } else {
+        postFlows(currentFlow);
+        console.log('UMM OK');
+        $('#form')[0].reset();
+      }
+    });
+    $("#closeForm").click(function() {
+      console.log('CURRENT FLOW', currentFlow);
+      $("#flow_form").toggle();
+    });
+  }
+
+  function attachFormChangeEventHandlers() {
     $('#keyWordInput').on('input', function (event) {
       if (currentFlow) {
         currentFlow.activationKeyword = event.target.value;
@@ -513,20 +559,26 @@
     $('#flow_form').toggle();
   }
 
-  function putFlow(inputObject) {
+  function putFlow(inputObject, fromRadioCheck = false, updateOldActive = false) {
     console.log('SEND SERVER', sendServer);
 
 
     const xhttp = new XMLHttpRequest();
-    xhttp.addEventListener("load", putFlowResponse);
+    if (!updateOldActive) {
+      xhttp.addEventListener("load", putFlowResponse.bind(xhttp, fromRadioCheck));
+    }
     xhttp.open("POST", sendServer + "?action=put_flow", true);
     xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
     xhttp.send("body=" + JSON.stringify(inputObject));
   }
 
-  function putFlowResponse() {
+  function putFlowResponse(fromRadioCheck) {
+    console.log('PUT FLOW RESPONSE', fromRadioCheck)
     getFlows();
-    $('#flow_form').toggle();
+
+    if (!fromRadioCheck) {
+      $('#flow_form').toggle();
+    }
   }
 
   // Send real messages
