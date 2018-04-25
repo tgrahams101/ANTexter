@@ -414,10 +414,21 @@
 
   function prepopulateForm() {
     if (currentFlow) {
-      const keyword = $('#keyWordInput');
-      const thankYou = $('#thankYou');
-      console.log(keyword.val());
-      keyword.val(currentFlow.activationKeyword);
+      $('#keyWordInput').val(currentFlow.activationKeyword);
+      $('#titleInput').val(currentFlow.title);
+      $('#thankYouInput').val(currentFlow.steps[currentFlow.steps.length - 1].prompt);
+      const formSelectOptions = document.getElementById('formSelect').children;
+
+      for (let i = 0; i < formSelectOptions.length; i++) {
+        if (formSelectOptions[i].value === currentFlow.foreignPath) {
+          // console.log('FOUND A MATCHING URL BREH!', formSelectOptions[i]);
+          formSelectOptions[i].selected = 'selected';
+        }
+      }
+      //Prepopulate steps
+      const stepsWithoutThankCount = currentFlow.steps.length - 1;
+      for (let i = 0; i < stepsWithoutThankCount; i++) {
+      }
     }
   }
 
