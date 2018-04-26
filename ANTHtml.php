@@ -303,6 +303,8 @@
         const deleteButton = document.createElement('button');
         deleteButton.append('Delete');
         deleteButton.addEventListener('click', function(){
+          //this DELETES THAT INDEX FROM THE CURRENT FLOW
+          //5 ELEMENTS --3 created
           currentFlow.steps.splice(newStepIndex, 1);
           console.log('CURRENT FLOW AFTER DELETION', currentFlow);
           deleteButton.parentNode.parentNode.removeChild(p);
