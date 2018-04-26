@@ -428,6 +428,48 @@
       //Prepopulate steps
       const stepsWithoutThankCount = currentFlow.steps.length - 1;
       for (let i = 0; i < stepsWithoutThankCount; i++) {
+        const pElement = document.createElement('p');
+        const selectElement = document.createElement('select');
+        if (i === 0) {
+          selectElement.id = 'fieldSelect1';
+          selectElement.name = 'field1';
+        }
+        const optionElement1 = document.createElement('option');
+        optionElement1.value = 'firstName';
+        optionElement1.text = 'First Name';
+        if (currentFlow.steps[i].foreignName === optionElement1.text) {
+          optionElement1.selected = 'selected'
+        }
+        const optionElement2 = document.createElement('option');
+        optionElement2.value = 'lastName';
+        optionElement2.text ='Last Name';
+        if (currentFlow.steps[i].foreignName === optionElement2.text) {
+          optionElement2.selected = 'selected'
+        }
+        const optionElement3 = document.createElement('option');
+        optionElement3.value = 'email';
+        optionElement3.text = 'E-mail';
+        if (currentFlow.steps[i].foreignName === optionElement3.text) {
+          optionElement3.selected = 'selected'
+        }
+        const optionElement4 = document.createElement('option');
+        optionElement4.value = 'zipCode';
+        optionElement4.text = 'Zip Code';
+        if (currentFlow.steps[i].foreignName === optionElement4.text) {
+          optionElement4.selected = 'selected'
+        }
+        const inputElement = document.createElement('input');
+        inputElement.name = 'field1Value';
+        inputElement.id = 'fieldInput1';
+        inputElement.value = currentFlow.steps[i].prompt;
+
+        selectElement.append([optionElement1, optionElement2, optionElement3, optionElement4]);
+
+        pElement.append(['Request for field', selectElement, inputElement]);
+        $('#requestDiv').html();
+        $('#requestDiv').append(pElement);
+
+
       }
     }
   }
