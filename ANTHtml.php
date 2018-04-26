@@ -347,10 +347,11 @@
     let flows = JSON.parse(this.response);
     console.log('RESPONSE FROM GET FLOWS', typeof flows, Array.isArray(flows), flows[0].title);
     let htmlArray = [];
-
+    let activeCount = 0;
     for (let i = 0; i < flows.length; i++) {
       if (flows[i].active) {
         activeFlowIndex = i;
+        activeCount++;
       }
 
       let flowPElement = document.createElement('p');
@@ -409,6 +410,7 @@
     }
     $('#flow_list').html();
     $('#flow_list').append(htmlArray);
+    console.log('NUMBER OF ACTIVES', activeCount)
 
   }
 
@@ -427,6 +429,7 @@
       }
       //Prepopulate steps
       const stepsWithoutThankCount = currentFlow.steps.length - 1;
+      let pElementsArray = [];
       for (let i = 0; i < stepsWithoutThankCount; i++) {
         const pElement = document.createElement('p');
         const selectElement = document.createElement('select');
@@ -456,21 +459,32 @@
         optionElement4.value = 'zipCode';
         optionElement4.text = 'Zip Code';
         if (currentFlow.steps[i].foreignName === optionElement4.text) {
-          optionElement4.selected = 'selected'
+          optionElement4.selected = 'selected';
         }
         const inputElement = document.createElement('input');
         inputElement.name = 'field1Value';
         inputElement.id = 'fieldInput1';
         inputElement.value = currentFlow.steps[i].prompt;
+        inputElement.oninput = function(event) {
+          currentFlow.steps[i].prompt = event.target.value;
+        }
+        selectElement.append(optionElement1);
+        selectElement.append(optionElement2);
+        selectElement.append(optionElement3);
+        selectElement.append(optionElement4);
+        selectElement.onchange = function(event) {
+          console.log('SELECT ELEMENT ON CHANGE!', event.target.value);
+          currentFlow.steps[i].foreignName = event.target.value;
+        }
 
-        selectElement.append([optionElement1, optionElement2, optionElement3, optionElement4]);
-
-        pElement.append(['Request for field', selectElement, inputElement]);
-        $('#requestDiv').html();
-        $('#requestDiv').append(pElement);
-
+        pElement.append('Request for field');
+        pElement.append(selectElement);
+        pElement.append(inputElement);
+        pElementsArray.push(pElement);
 
       }
+      $('#requestDiv').empty();
+      $('#requestDiv').append(pElementsArray);
     }
   }
 
