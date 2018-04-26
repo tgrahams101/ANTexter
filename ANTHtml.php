@@ -440,30 +440,33 @@
         const optionElement1 = document.createElement('option');
         optionElement1.value = 'firstName';
         optionElement1.text = 'First Name';
-        if (currentFlow.steps[i].foreignName === optionElement1.text) {
-          optionElement1.selected = 'selected'
+        console.log('SELECTED', currentFlow.steps[i].foreignName , optionElement1.value);
+        if (currentFlow.steps[i].foreignName === optionElement1.value) {
+          optionElement1.selected = 'selected';
         }
         const optionElement2 = document.createElement('option');
         optionElement2.value = 'lastName';
         optionElement2.text ='Last Name';
-        if (currentFlow.steps[i].foreignName === optionElement2.text) {
-          optionElement2.selected = 'selected'
+        console.log('SELECTED', currentFlow.steps[i].foreignName , optionElement2.value);
+        if (currentFlow.steps[i].foreignName === optionElement2.value) {
+          optionElement2.selected = 'selected';
         }
         const optionElement3 = document.createElement('option');
         optionElement3.value = 'email';
         optionElement3.text = 'E-mail';
-        if (currentFlow.steps[i].foreignName === optionElement3.text) {
-          optionElement3.selected = 'selected'
+        console.log('SELECTED', currentFlow.steps[i].foreignName , optionElement3.value);
+        if (currentFlow.steps[i].foreignName === optionElement3.value) {
+          optionElement3.selected = 'selected';
         }
         const optionElement4 = document.createElement('option');
         optionElement4.value = 'zipCode';
         optionElement4.text = 'Zip Code';
-        if (currentFlow.steps[i].foreignName === optionElement4.text) {
+        console.log('SELECTED', currentFlow.steps[i].foreignName , optionElement4.text);
+        if (currentFlow.steps[i].foreignName === optionElement4.value) {
           optionElement4.selected = 'selected';
         }
         const inputElement = document.createElement('input');
-        inputElement.name = 'field1Value';
-        inputElement.id = 'fieldInput1';
+        console.log(`CURRENT VALUE ${i} ${currentFlow.steps[i].prompt}`)
         inputElement.value = currentFlow.steps[i].prompt;
         inputElement.oninput = function(event) {
           currentFlow.steps[i].prompt = event.target.value;
@@ -481,6 +484,7 @@
         pElement.append(selectElement);
         pElement.append(inputElement);
         pElementsArray.push(pElement);
+        console.log(`${i}st P Element for step reconstruction`, pElement);
 
       }
       $('#requestDiv').empty();
