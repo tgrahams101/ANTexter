@@ -7,9 +7,27 @@
     **/
 
 
-define(SMS_CAUCUS_URL, 'http://sms-caucus.herokuapp.com/');
-define(AN_URL, 'https://actionnetwork.org/api/v2/');
-define(FORMS_URL, 'https://actionnetwork.org/api/v2/forms');
+  define(SMS_CAUCUS_URL, 'http://sms-caucus.herokuapp.com/');
+  define(AN_URL, 'https://actionnetwork.org/api/v2/');
+  define(FORMS_URL, 'https://actionnetwork.org/api/v2/forms');
+
+  // require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-plugin-name-alert.php'
+  // require_once(__DIR__ . '/ANTexterClass.php');
+  // require_once(__DIR__ . '/PluginLoader.php');
+  //
+  // $loader = new Plugin_Name_Loader();
+  //
+  // $plugin = new ANTexter();
+  // $loader->add_action('wp_ajax_send_test_text', $loader, 'send_test_text' );
+  // $loader->add_action('wp_ajax_fetch_forms', $loader,'fetch_forms');
+  // $loader->add_action('wp_ajax_get_flows',  $loader, 'get_flows');
+  // $loader->add_action('wp_ajax_post_flow',  $loader,'post_flow');
+  // $loader->add_action('wp_ajax_put_flow', $loader, 'put_flow');
+  // $loader->add_action( 'wp_ajax_send_bulk_text', $loader, 'send_bulk_text' );
+  // $loader->add_action('wp_ajax_fetch_batches', $loader, 'fetch_batches');
+  // $loader->add_action('wp_ajax_fetch_tags', $loader, 'fetch_tags');
+  // $loader->add_action( 'wp_ajax_check_progress', $loader, 'check_progress' );
+  // $loader->run();
 
     add_action("admin_menu", "texter");
 
@@ -82,7 +100,7 @@ function send_test_text() {
 add_action('wp_ajax_fetch_forms', 'fetch_forms');
 
 function fetch_forms() {
-  $api_key = '095b4e51dccf9c92c464c0e564dd6f32';
+  $api_key = get_field( 'action_network_api_key', 'user_'. get_current_user_id());
 
   $response = wp_remote_get(FORMS_URL, array(
             'headers' => array('OSDI-API-Token' => $api_key)
