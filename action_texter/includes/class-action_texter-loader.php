@@ -3,11 +3,11 @@
 /**
  * Register all actions and filters for the plugin
  *
- * @link       http://example.com
+ * @link       Codewalker Institute
  * @since      1.0.0
  *
- * @package    Plugin_Name
- * @subpackage Plugin_Name/includes
+ * @package    Action_texter
+ * @subpackage Action_texter/includes
  */
 
 /**
@@ -17,11 +17,11 @@
  * the plugin, and register them with the WordPress API. Call the
  * run function to execute the list of actions and filters.
  *
- * @package    Plugin_Name
- * @subpackage Plugin_Name/includes
- * @author     Your Name <email@example.com>
+ * @package    Action_texter
+ * @subpackage Action_texter/includes
+ * @author     CodeWalker Institute <zeke@codewalker.institute>
  */
-class Plugin_Name_Loader {
+class Action_texter_Loader {
 
 	/**
 	 * The array of actions registered with WordPress.
